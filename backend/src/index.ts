@@ -1,18 +1,31 @@
-import { createApplication } from "@specific-dev/framework";
-import * as schema from './db/schema/schema.js';
+import { createApplication, resend } from "@specific-dev/framework";
+import * as appSchema from './db/schema/schema.js';
+import * as authSchema from './db/schema/auth-schema.js';
+import { registerEntriesRoutes } from './routes/entries.js';
+import { seedDemoData } from './seed.js';
 
-// Import route registration functions
-// import { registerUserRoutes } from './routes/users.js';
+const schema = { ...appSchema, ...authSchema };
 
-// Create application with schema for full database type support
 export const app = await createApplication(schema);
 
-// Export App type for use in route files
 export type App = typeof app;
 
-// Register routes - add your route modules here
-// IMPORTANT: Always use registration functions to avoid circular dependency issues
-// registerUserRoutes(app);
+app.withAuth({
+  emailAndPassword: {
+    sendResetPassword: async ({ user, url }) => {
+      resend.emails.send({
+        from: 'Chest Comfort Tracker <noreply@example.com>',
+        to: user.email,
+        subject: 'Reset your password',
+        html: `<p>Click to reset your password: <a href="${url}">${url}</a></p>`,
+      });
+    },
+  },
+});
+
+registerEntriesRoutes(app);
+
+await seedDemoData(app);
 
 await app.run();
 app.logger.info('Application running');
