@@ -34,7 +34,7 @@ function NavigationGuard({ children }: { children: React.ReactNode }) {
     if (!user && !inAuthGroup) {
       router.replace("/auth");
     } else if (user && inAuthGroup) {
-      router.replace("/(tabs)/(log)");
+      router.replace("/(tabs)/(graph)");
     }
   }, [user, loading, segments]);
 

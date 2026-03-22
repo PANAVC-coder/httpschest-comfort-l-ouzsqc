@@ -40,7 +40,7 @@ function SkeletonPulse({ width, height = 14, borderRadius = 8 }: { width: number
   );
 }
 
-export default function LogScreen() {
+export default function TrackScreen() {
   const [date, setDate] = useState(new Date());
   const [comfortLevel, setComfortLevel] = useState<number | null>(null);
   const [selectedTriggers, setSelectedTriggers] = useState<string[]>([]);
@@ -51,7 +51,7 @@ export default function LogScreen() {
   const successScale = useRef(new Animated.Value(0)).current;
 
   const toggleTrigger = useCallback((trigger: string) => {
-    console.log("[Log] Toggle trigger:", trigger);
+    console.log("[Track] Toggle trigger:", trigger);
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setSelectedTriggers((prev) =>
       prev.includes(trigger) ? prev.filter((t) => t !== trigger) : [...prev, trigger]
@@ -60,7 +60,8 @@ export default function LogScreen() {
 
   const handleSave = async () => {
     if (!comfortLevel) return;
-    console.log("[Log] Saving entry:", { date, comfortLevel, triggers: selectedTriggers, notes });
+    console.log("[Track] Save button pressed");
+    console.log("[Track] Saving entry:", { date, comfortLevel, triggers: selectedTriggers, notes });
     setIsSaving(true);
     try {
       const payload = {
@@ -69,9 +70,9 @@ export default function LogScreen() {
         triggers: selectedTriggers,
         notes: notes.trim(),
       };
-      console.log("[Log] POST /api/entries payload:", payload);
+      console.log("[Track] POST /api/entries payload:", payload);
       await apiPost("/api/entries", payload);
-      console.log("[Log] Entry saved successfully");
+      console.log("[Track] Entry saved successfully");
 
       if (Platform.OS === "ios") {
         await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -90,18 +91,23 @@ export default function LogScreen() {
         successScale.setValue(0);
       }, 1800);
     } catch (err: any) {
-      console.error("[Log] Failed to save entry:", err);
+      console.error("[Track] Failed to save entry:", err);
     } finally {
       setIsSaving(false);
     }
   };
 
-  const levelColor = comfortLevel ? comfortColor(comfortLevel) : COLORS.textTertiary;
   const canSave = comfortLevel !== null && !isSaving && !saveSuccess;
+
+  const comfortLevelLabel = comfortLevel
+    ? comfortLevel <= 2 ? "Severe" : comfortLevel <= 4 ? "Poor" : comfortLevel <= 6 ? "Fair" : comfortLevel <= 8 ? "Good" : "Excellent"
+    : "";
+
+  const saveButtonLabel = comfortLevel ? "Save entry" : "Select a comfort level";
 
   return (
     <>
-      <Stack.Screen options={{ title: "Log Entry" }} />
+      <Stack.Screen options={{ title: "Track" }} />
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         style={{ flex: 1, backgroundColor: COLORS.background }}
@@ -132,7 +138,7 @@ export default function LogScreen() {
             display={Platform.OS === "ios" ? "inline" : "default"}
             onChange={(_, d) => {
               if (d) {
-                console.log("[Log] Date changed:", d.toISOString());
+                console.log("[Track] Date changed:", d.toISOString());
                 setDate(d);
               }
             }}
@@ -158,7 +164,9 @@ export default function LogScreen() {
           </Text>
           {comfortLevel ? (
             <Text style={{ fontSize: 13, color: comfortColor(comfortLevel), fontWeight: "500", marginBottom: 14 }}>
-              {comfortLevel} — {comfortLevel <= 2 ? "Severe" : comfortLevel <= 4 ? "Poor" : comfortLevel <= 6 ? "Fair" : comfortLevel <= 8 ? "Good" : "Excellent"}
+              {comfortLevel}
+              {" — "}
+              {comfortLevelLabel}
             </Text>
           ) : (
             <Text style={{ fontSize: 13, color: COLORS.textTertiary, marginBottom: 14 }}>
@@ -174,7 +182,7 @@ export default function LogScreen() {
                 <AnimatedPressable
                   key={n}
                   onPress={() => {
-                    console.log("[Log] Comfort level selected:", n);
+                    console.log("[Track] Comfort level selected:", n);
                     setComfortLevel(n);
                   }}
                   style={{
@@ -283,7 +291,10 @@ export default function LogScreen() {
 
         {/* Save Button */}
         <AnimatedPressable
-          onPress={handleSave}
+          onPress={() => {
+            console.log("[Track] Save button pressed");
+            handleSave();
+          }}
           disabled={!canSave}
           style={{
             height: 56,
@@ -296,9 +307,7 @@ export default function LogScreen() {
           }}
         >
           {isSaving ? (
-            <>
-              <SkeletonPulse width={120} height={16} borderRadius={8} />
-            </>
+            <SkeletonPulse width={120} height={16} borderRadius={8} />
           ) : saveSuccess ? (
             <Animated.View style={{ flexDirection: "row", alignItems: "center", gap: 8, transform: [{ scale: successScale }] }}>
               <Check size={20} color="#FFFFFF" strokeWidth={2.5} />
@@ -312,7 +321,7 @@ export default function LogScreen() {
                 color: comfortLevel ? "#FFFFFF" : COLORS.textTertiary,
               }}
             >
-              {comfortLevel ? "Save entry" : "Select a comfort level"}
+              {saveButtonLabel}
             </Text>
           )}
         </AnimatedPressable>

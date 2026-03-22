@@ -1,7 +1,6 @@
-import { Stack } from "expo-router";
-import { COLORS } from "@/constants/Colors";
+import { Stack } from "expo-router/stack";
 
-export default function HistoryLayout() {
+export default function ChatLayout() {
   return (
     <Stack
       screenOptions={{
@@ -9,13 +8,9 @@ export default function HistoryLayout() {
         headerShadowVisible: false,
         headerLargeTitleShadowVisible: false,
         headerLargeStyle: { backgroundColor: "transparent" },
-        headerBlurEffect: "none",
         headerLargeTitle: true,
         headerBackButtonDisplayMode: "minimal",
-        headerTintColor: COLORS.primary,
       }}
-    >
-      <Stack.Screen name="index" options={{ title: "History" }} />
-    </Stack>
+    />
   );
 }

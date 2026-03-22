@@ -1,61 +1,38 @@
 import React from "react";
-import { View } from "react-native";
-import { Stack, useRouter, usePathname } from "expo-router";
-import FloatingTabBar from "@/components/FloatingTabBar";
-import { PlusCircle, List, BarChart2 } from "lucide-react-native";
-import { COLORS } from "@/constants/Colors";
+import { Tabs } from "expo-router";
+import FloatingTabBar, { TabBarItem } from "@/components/FloatingTabBar";
+import { useWindowDimensions } from "react-native";
 
-const TABS = [
-  { name: "log", route: "/(tabs)/(log)" as const, lucideIcon: PlusCircle, label: "Log", icon: "add_circle" as const },
-  { name: "history", route: "/(tabs)/(history)" as const, lucideIcon: List, label: "History", icon: "list" as const },
-  { name: "insights", route: "/(tabs)/(insights)" as const, lucideIcon: BarChart2, label: "Insights", icon: "bar_chart" as const },
+const TABS: TabBarItem[] = [
+  { name: "(graph)", route: "/(tabs)/(graph)", icon: "show_chart", label: "Graph" },
+  { name: "(track)", route: "/(tabs)/(track)", icon: "add_circle", label: "Track" },
+  { name: "(chat)", route: "/(tabs)/(chat)", icon: "chat", label: "AI Chat" },
+  { name: "(reports)", route: "/(tabs)/(reports)", icon: "description", label: "Reports" },
+  { name: "(allergy)", route: "/(tabs)/(allergy)", icon: "coronavirus", label: "Allergy" },
+  { name: "(profile)", route: "/(tabs)/(profile)", icon: "person", label: "Profile" },
 ];
 
-function TabBarWithIcons() {
-  const pathname = usePathname();
-
-  const activeIndex = React.useMemo(() => {
-    if (pathname.includes("history")) return 1;
-    if (pathname.includes("insights")) return 2;
-    return 0;
-  }, [pathname]);
-
-  const router = useRouter();
-
-  return (
-    <View
-      style={{
-        position: "absolute",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        zIndex: 1000,
-      }}
-    >
-      <FloatingTabBar
-        tabs={TABS.map((t) => ({
-          name: t.name,
-          route: t.route,
-          icon: t.icon,
-          label: t.label,
-        }))}
-        containerWidth={260}
-        borderRadius={35}
-        bottomMargin={20}
-      />
-    </View>
-  );
-}
-
 export default function TabLayout() {
+  const { width } = useWindowDimensions();
   return (
-    <View style={{ flex: 1 }}>
-      <Stack screenOptions={{ headerShown: false, animation: "none" }}>
-        <Stack.Screen name="(log)" />
-        <Stack.Screen name="(history)" />
-        <Stack.Screen name="(insights)" />
-      </Stack>
-      <TabBarWithIcons />
-    </View>
+    <Tabs
+      tabBar={(props) => (
+        <FloatingTabBar
+          {...props}
+          tabs={TABS}
+          containerWidth={width - 32}
+          borderRadius={35}
+          bottomMargin={20}
+        />
+      )}
+      screenOptions={{ headerShown: false }}
+    >
+      <Tabs.Screen name="(graph)" options={{ title: "Graph" }} />
+      <Tabs.Screen name="(track)" options={{ title: "Track" }} />
+      <Tabs.Screen name="(chat)" options={{ title: "AI Chat" }} />
+      <Tabs.Screen name="(reports)" options={{ title: "Reports" }} />
+      <Tabs.Screen name="(allergy)" options={{ title: "Allergy" }} />
+      <Tabs.Screen name="(profile)" options={{ title: "Profile" }} />
+    </Tabs>
   );
 }
