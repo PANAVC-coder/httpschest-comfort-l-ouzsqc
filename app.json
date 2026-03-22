@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Natively App",
-    "slug": "natively-app",
+    "name": "httpschest-comfort-l",
+    "slug": "httpschest-comfort-l",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/app-icon-pcn.png",
@@ -35,7 +35,7 @@
       "expo-web-browser",
       "expo-secure-store"
     ],
-    "scheme": "nativelyapp",
+    "scheme": "httpschestcomfortl",
     "experiments": {
       "typedRoutes": true
     },
